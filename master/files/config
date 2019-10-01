@@ -1,0 +1,13 @@
+ # create new ( define each node )
+
+Host ctrl
+    Hostname ctrl.srv.world
+    User origin
+Host node01
+    Hostname node01.srv.world
+    User origin
+Host node02
+    Hostname node02.srv.world
+    User origin
+
+

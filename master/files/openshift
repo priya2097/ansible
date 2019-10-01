@@ -1,0 +1,3 @@
+Defaults:origin !requiretty
+origin ALL = (root) NOPASSWD:ALL
+

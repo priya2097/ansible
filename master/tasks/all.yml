@@ -1,0 +1,51 @@
+---
+- name: creating a user
+  user:
+    name: origin
+    state: present
+    password: redhat
+- name: copying the content
+  copy:
+    src: openshift
+    dest: /etc/sudoers.d
+- name: 
+  command: "{{ item }}"
+  with_items: 
+       - chmod 440 /etc/sudoers.d/openshift 
+- name: installing firewalld
+  yum:
+    name: firewalld
+    state: latest
+    enabled: yes
+- name: starting firewalld
+  service:
+    name: firewalld
+    state: started
+- name: adding services to firewalld
+  firewalld:
+    name: ssh
+    permanent: yes
+    zone: public
+    immediate: yes
+    state: enabled
+- name: restart firewalld
+  service:
+    name: firewalld
+    state: restarted
+- name: installing the packages
+  yum: "{{ item }}"
+  with_items:
+        - centos-release-openshift-origin311
+        - epel-release
+        - pip
+        - docker
+        - pyOpenSSL
+- name: installing ansible
+  command: pip install ansible==2.7
+- name: start the service
+  service:
+    name: docker
+    state: started
+    enabled: yes
+
+
