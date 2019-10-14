@@ -1,0 +1,68 @@
+---
+- name: installing openshift
+  hosts: all
+  become: true
+  tasks:
+   - name: creating a user
+     user:
+      name: origin
+      state: present
+      password: redhat
+   - name: copying the content
+     copy:
+      src: openshift
+      dest: /etc/sudoers.d
+   - name: 
+     command: "{{ item }}"
+     with_items: 
+       - chmod 440 /etc/sudoers.d/openshift 
+   - name: installing firewalld
+     yum:
+      name: firewalld
+      state: latest
+   - name: starting firewalld
+     service:
+      name: firewalld
+      state: started
+   - name: adding services to firewalld
+     shell: firewall-cmd --add-service=ssh --permanent 
+   - name: restart firewalld
+     service:
+      name: firewalld
+      state: restarted
+   - name: installing the packages
+     yum: 
+      name: "{{ item }}"
+      state: latest
+     with_items:
+        - centos-release-openshift-origin311
+        - epel-release
+        - docker
+        - pyOpenSSL
+   - name: installing ansible
+     command: "{{ item }}"
+     with_items:
+      - yum install python-pip -y     
+      - pip install ansible==2.7.10
+   - name: start the service
+     service:
+      name: docker
+      state: started
+      enabled: yes
+   - name: installing openshift-ansible
+     yum:
+      name: openshift-ansible
+      state: present
+   - name:
+     copy:
+       src: hosts
+       dest: /etc/ansible/hosts
+   - name:
+     command: "{{ item }}"
+     with_items:
+      - ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/prerequisites.yml
+      - ansible-playbook /usr/share/ansible/openshift-ansible/playbooks/deploy_cluster.yml
+
+
+
+
